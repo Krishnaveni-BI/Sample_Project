@@ -27,7 +27,7 @@ conn_max_lifetime = 300
 dsn = "postgresql://neondb_owner:npg_W80rgvKnBUPf@ep-muddy-hill-amlo6fp2-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 [redis]
-host = "localhost"
+host = "red-d7h452e7r5hc73e29gt0"
 port = 6379
 username = ""
 password = ""

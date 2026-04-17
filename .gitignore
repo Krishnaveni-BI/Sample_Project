@@ -1,0 +1,6 @@
+﻿whatomate/frontend/node_modules/
+whatomate/frontend/dist/
+whatomate/bin/
+whatomate/*.exe
+whatomate/whatomate.exe
+*.exe

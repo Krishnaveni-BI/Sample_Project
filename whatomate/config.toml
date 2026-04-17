@@ -15,17 +15,16 @@ base_path = ""
 allowed_origins = ""
 
 [database]
-[database]
-host = ""
+host = "ep-muddy-hill-amlo6fp2-pooler.c-5.us-east-1.aws.neon.tech"
 port = 5432
-user = ""
-password = ""
-name = ""
+user = "neondb_owner"
+password = "npg_W80rgvKnBUPf"
+name = "neondb"
 ssl_mode = "require"
 max_open_conns = 25
 max_idle_conns = 5
 conn_max_lifetime = 300
-dsn = "postgresql://neondb_owner:npg_W80rgvKnBUPf@ep-muddy-hill-amlo6fp2.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require"
+dsn = "postgresql://neondb_owner:npg_W80rgvKnBUPf@ep-muddy-hill-amlo6fp2-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 [redis]
 host = "localhost"

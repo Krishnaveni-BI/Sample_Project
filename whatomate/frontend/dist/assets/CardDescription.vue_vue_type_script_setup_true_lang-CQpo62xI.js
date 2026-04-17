@@ -1,0 +1,1 @@
+import{c as a}from"./loader-2-CZL8NV5u.js";import{A as o,V as r,a7 as n,u as c,I as m,J as p}from"./vue-vendor-DhtOj7_C.js";const i=o({__name:"CardDescription",props:{class:{}},setup(s){const e=s;return(t,l)=>(p(),r("p",{class:n(c(a)("text-sm text-muted-foreground mt-1.5",e.class))},[m(t.$slots,"default")],2))}});export{i as _};

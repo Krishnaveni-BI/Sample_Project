@@ -1,0 +1,1 @@
+import{c as n}from"./loader-2-CZL8NV5u.js";import{A as o,V as a,a7 as r,u as c,J as t}from"./vue-vendor-DhtOj7_C.js";const u=o({__name:"Skeleton",props:{class:{}},setup(s){const e=s;return(l,m)=>(t(),a("div",{class:r(c(n)("rounded-md skeleton-shimmer",e.class))},null,2))}});export{u as _};

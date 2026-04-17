@@ -1,0 +1,1 @@
+import{a}from"./loader-2-CZL8NV5u.js";const r=a("ReplyIcon",[["polyline",{points:"9 17 4 12 9 7",key:"hvgpf2"}],["path",{d:"M20 18v-2a4 4 0 0 0-4-4H4",key:"5vmcpk"}]]),s=(o,e)=>{const t=o.__vccOpts||o;for(const[c,p]of e)t[c]=p;return t};export{r as R,s as _};

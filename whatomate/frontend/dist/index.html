@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Whatomate - WhatsApp Business Platform">
+    <title>Whatomate</title>
+    <script>
+      (function() {
+        var mode = localStorage.getItem('color-mode');
+        var isDark = mode === 'dark' || (mode === 'system' || !mode) && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (isDark) document.documentElement.classList.add('dark');
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-BKenim8P.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/vue-vendor-DhtOj7_C.js">
+    <link rel="modulepreload" crossorigin href="./assets/reka-ui-Iq4vBytq.js">
+    <link rel="modulepreload" crossorigin href="./assets/utils-CuhvJERx.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-yYgqnFJy.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>

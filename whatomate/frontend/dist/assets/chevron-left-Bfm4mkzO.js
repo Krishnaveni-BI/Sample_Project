@@ -1,0 +1,1 @@
+import{a as o}from"./loader-2-CZL8NV5u.js";const r=o("ArrowUpIcon",[["path",{d:"m5 12 7-7 7 7",key:"hav0vg"}],["path",{d:"M12 19V5",key:"x0mq9r"}]]);const t=o("ChevronLeftIcon",[["path",{d:"m15 18-6-6 6-6",key:"1wnfg3"}]]);export{r as A,t as C};

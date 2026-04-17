@@ -1,0 +1,86 @@
+# Whatomate Configuration - Local Development (No Docker)
+
+[app]
+name = "Whatomate"
+environment = "development"
+debug = true
+encryption_key = ""
+
+[server]
+host = "0.0.0.0"
+port = 8080
+read_timeout = 30
+write_timeout = 30
+base_path = ""
+allowed_origins = ""
+
+[database]
+host = "localhost"
+port = 5432
+user = "whatomate"
+password = "whatomate"
+name = "whatomate"
+ssl_mode = "disable"
+max_open_conns = 25
+max_idle_conns = 5
+conn_max_lifetime = 300
+dsn = "postgresql://neondb_owner:npg_W80rgvKnBUPf@ep-muddy-hill-amlo6fp2.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+[redis]
+host = "localhost"
+port = 6379
+username = ""
+password = ""
+db = 0
+tls = false
+
+[jwt]
+secret = "this-is-my-local-dev-secret-key-32chars!!"
+access_expiry_mins = 15
+refresh_expiry_days = 1
+
+[storage]
+type = "local"
+local_path = "./uploads"
+s3_bucket = ""
+s3_region = ""
+s3_key = ""
+s3_secret = ""
+
+[cookie]
+domain = ""
+secure = false
+
+[rate_limit]
+enabled = false
+login_max_attempts = 10
+register_max_attempts = 10
+refresh_max_attempts = 30
+sso_max_attempts = 10
+window_seconds = 60
+trust_proxy = false
+api_max_requests = 200
+api_window_seconds = 60
+
+[tts]
+# piper_binary = "/usr/local/bin/piper"
+# piper_model = "/opt/piper/models/en_US-lessac-medium.onnx"
+# opusenc_binary = "opusenc"
+
+[calling]
+max_call_duration = 300
+audio_dir = "./audio"
+transfer_timeout_secs = 120
+recording_enabled = false
+udp_port_min = 10000
+udp_port_max = 10100
+# public_ip = "1.2.3.4"
+# relay_only = true
+
+# [[calling.ice_servers]]
+# urls = ["stun:stun.l.google.com:19302"]
+
+[default_admin]
+email = "admin@admin.com"
+password = "admin"
+full_name = "Admin"

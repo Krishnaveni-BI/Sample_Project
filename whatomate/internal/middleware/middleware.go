@@ -1,5 +1,6 @@
 package middleware
 
+
 import (
 	"context"
 	"strings"
@@ -15,6 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
+
 // Context keys
 const (
 	ContextKeyUserID         = "user_id"
@@ -26,6 +28,7 @@ const (
 	ContextKeyOrganization   = "organization"
 )
 
+
 // JWTClaims represents JWT claims
 type JWTClaims struct {
 	UserID         uuid.UUID  `json:"user_id"`
@@ -35,6 +38,7 @@ type JWTClaims struct {
 	IsSuperAdmin   bool       `json:"is_super_admin"`
 	jwt.RegisteredClaims
 }
+
 
 // RequestLogger logs incoming requests
 func RequestLogger(log logf.Logger) fastglue.FastMiddleware {
@@ -48,6 +52,7 @@ func RequestLogger(log logf.Logger) fastglue.FastMiddleware {
 	}
 }
 
+
 // ParseAllowedOrigins parses a comma-separated list of allowed origins into a set.
 func ParseAllowedOrigins(allowedOrigins string) map[string]bool {
 	origins := make(map[string]bool)
@@ -60,6 +65,7 @@ func ParseAllowedOrigins(allowedOrigins string) map[string]bool {
 	return origins
 }
 
+
 // IsOriginAllowed checks if origin is in the allowed set.
 // If no origins are configured, all origins are allowed (development mode).
 func IsOriginAllowed(origin string, allowedOrigins map[string]bool) bool {
@@ -68,6 +74,7 @@ func IsOriginAllowed(origin string, allowedOrigins map[string]bool) bool {
 	}
 	return allowedOrigins[origin]
 }
+
 
 // CORS handles Cross-Origin Resource Sharing with origin validation.
 func CORS(allowedOrigins map[string]bool) fastglue.FastMiddleware {
@@ -83,16 +90,22 @@ func CORS(allowedOrigins map[string]bool) fastglue.FastMiddleware {
 				r.RequestCtx.Response.Header.Set("Access-Control-Allow-Origin", origin)
 			}
 		}
-		// If origin is not allowed, no Access-Control-Allow-Origin header is set,
-		// which causes the browser to block the request.
 
 		r.RequestCtx.Response.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 		r.RequestCtx.Response.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key, X-Organization-ID, X-CSRF-Token")
 		r.RequestCtx.Response.Header.Set("Access-Control-Max-Age", "86400")
 
+		// ✅ FIX: Handle OPTIONS preflight request to prevent 405 errors
+		if string(r.RequestCtx.Method()) == "OPTIONS" {
+			r.RequestCtx.SetStatusCode(fasthttp.StatusNoContent)
+			r.RequestCtx.Response.Header.Set("Content-Length", "0")
+			return nil
+		}
+
 		return r
 	}
 }
+
 
 // SecurityHeaders adds standard security headers to every response.
 func SecurityHeaders() fastglue.FastMiddleware {
@@ -106,6 +119,7 @@ func SecurityHeaders() fastglue.FastMiddleware {
 		return r
 	}
 }
+
 
 // Recovery recovers from panics
 func Recovery(log logf.Logger) fastglue.FastMiddleware {
@@ -121,10 +135,12 @@ func Recovery(log logf.Logger) fastglue.FastMiddleware {
 	}
 }
 
+
 // Auth validates JWT tokens (legacy - use AuthWithDB for API key support)
 func Auth(secret string) fastglue.FastMiddleware {
 	return AuthWithDB(secret, nil)
 }
+
 
 // AuthWithDB validates both JWT tokens and API keys
 func AuthWithDB(secret string, db *gorm.DB) fastglue.FastMiddleware {
@@ -192,6 +208,7 @@ func AuthWithDB(secret string, db *gorm.DB) fastglue.FastMiddleware {
 	}
 }
 
+
 // validateAPIKey validates an API key and sets context values
 func validateAPIKey(r *fastglue.Request, key string, db *gorm.DB) bool {
 	// API key format: whm_<32 hex chars>
@@ -200,11 +217,10 @@ func validateAPIKey(r *fastglue.Request, key string, db *gorm.DB) bool {
 	}
 
 	// Extract both new (16-char) and old (8-char) prefixes for backward compatibility.
-	// New keys store 16 chars; old keys store 8 chars. Query matches either.
 	newPrefix := key[4:20]
 	oldPrefix := key[4:12]
 
-	// Find API keys with matching prefix (supports both old and new prefix lengths)
+	// Find API keys with matching prefix
 	var apiKeys []models.APIKey
 	if err := db.Preload("User").Where("(key_prefix = ? OR key_prefix = ?) AND is_active = ?", newPrefix, oldPrefix, true).Find(&apiKeys).Error; err != nil {
 		return false
@@ -213,12 +229,10 @@ func validateAPIKey(r *fastglue.Request, key string, db *gorm.DB) bool {
 	// Check each key with bcrypt
 	for _, apiKey := range apiKeys {
 		if err := bcrypt.CompareHashAndPassword([]byte(apiKey.KeyHash), []byte(key)); err == nil {
-			// Key matches - check expiration
 			if apiKey.ExpiresAt != nil && time.Now().After(*apiKey.ExpiresAt) {
-				return false // Key expired
+				return false
 			}
 
-			// Update last used timestamp (async to not block request)
 			go func(id uuid.UUID) {
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
@@ -226,7 +240,6 @@ func validateAPIKey(r *fastglue.Request, key string, db *gorm.DB) bool {
 				db.WithContext(ctx).Model(&models.APIKey{}).Where("id = ?", id).Update("last_used_at", now)
 			}(apiKey.ID)
 
-			// Set context values from the user who created the key
 			if apiKey.User != nil {
 				r.RequestCtx.SetUserValue(ContextKeyUserID, apiKey.UserID)
 				r.RequestCtx.SetUserValue(ContextKeyOrganizationID, apiKey.OrganizationID)
@@ -242,6 +255,7 @@ func validateAPIKey(r *fastglue.Request, key string, db *gorm.DB) bool {
 
 	return false
 }
+
 
 // OrganizationContext loads organization and user from database
 func OrganizationContext(db *gorm.DB) fastglue.FastMiddleware {
@@ -277,7 +291,6 @@ func OrganizationContext(db *gorm.DB) fastglue.FastMiddleware {
 			return nil
 		}
 
-		// Store in context
 		r.RequestCtx.SetUserValue(ContextKeyUser, &user)
 		r.RequestCtx.SetUserValue(ContextKeyOrganization, &org)
 
@@ -285,8 +298,10 @@ func OrganizationContext(db *gorm.DB) fastglue.FastMiddleware {
 	}
 }
 
+
 // PermissionChecker is a function that checks if a user has a permission
 type PermissionChecker func(userID uuid.UUID, resource, action string) bool
+
 
 // RequirePermission checks if user has the required permission using the provided checker
 func RequirePermission(checker PermissionChecker, resource, action string) fastglue.FastMiddleware {
@@ -306,53 +321,6 @@ func RequirePermission(checker PermissionChecker, resource, action string) fastg
 	}
 }
 
+
 // RequireAnyPermission checks if user has any of the required permissions
-func RequireAnyPermission(checker PermissionChecker, permissions ...string) fastglue.FastMiddleware {
-	return func(r *fastglue.Request) *fastglue.Request {
-		userID, ok := r.RequestCtx.UserValue(ContextKeyUserID).(uuid.UUID)
-		if !ok {
-			_ = r.SendErrorEnvelope(fasthttp.StatusUnauthorized, "User not authenticated", nil, "")
-			return nil
-		}
-
-		for _, perm := range permissions {
-			parts := strings.Split(perm, ":")
-			if len(parts) == 2 && checker(userID, parts[0], parts[1]) {
-				return r
-			}
-		}
-
-		_ = r.SendErrorEnvelope(fasthttp.StatusForbidden, "Insufficient permissions", nil, "")
-		return nil
-	}
-}
-
-// GetUserID extracts user ID from request context
-func GetUserID(r *fastglue.Request) (uuid.UUID, bool) {
-	userID, ok := r.RequestCtx.UserValue(ContextKeyUserID).(uuid.UUID)
-	return userID, ok
-}
-
-// GetOrganizationID extracts organization ID from request context
-func GetOrganizationID(r *fastglue.Request) (uuid.UUID, bool) {
-	orgID, ok := r.RequestCtx.UserValue(ContextKeyOrganizationID).(uuid.UUID)
-	return orgID, ok
-}
-
-// GetUser extracts user from request context
-func GetUser(r *fastglue.Request) (*models.User, bool) {
-	user, ok := r.RequestCtx.UserValue(ContextKeyUser).(*models.User)
-	return user, ok
-}
-
-// GetOrganization extracts organization from request context
-func GetOrganization(r *fastglue.Request) (*models.Organization, bool) {
-	org, ok := r.RequestCtx.UserValue(ContextKeyOrganization).(*models.Organization)
-	return org, ok
-}
-
-// IsSuperAdmin checks if the current user is a super admin
-func IsSuperAdmin(r *fastglue.Request) bool {
-	isSuperAdmin, ok := r.RequestCtx.UserValue(ContextKeyIsSuperAdmin).(bool)
-	return ok && isSuperAdmin
-}
+func RequireAnyPermission(checker Per
